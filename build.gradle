@@ -1,0 +1,46 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'java'
+}
+
+version '1.0-SNAPSHOT'
+
+// Define the library versions
+project.ext.lwjglVersion = "3.3.3"
+project.ext.jomlVersion = "1.10.5"
+
+// Automatically detect your operating system for the native binaries
+switch (OperatingSystem.current()) {
+    case OperatingSystem.WINDOWS:
+        project.ext.lwjglNatives = "natives-windows"
+        break
+    case OperatingSystem.LINUX:
+        project.ext.lwjglNatives = "natives-linux"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.lwjglNatives = System.getProperty("os.arch").startsWith("aarch64") ? "natives-macos-arm64" : "natives-macos"
+        break
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The LWJGL Bill of Materials (BOM)
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    // The core Java libraries
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-stb"
+    implementation "org.joml:joml:${jomlVersion}"
+
+    // The OS-specific native binaries
+    runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+}
