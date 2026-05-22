@@ -38,7 +38,10 @@ public class DisplayManager {
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
 
-        GL11.glViewport(0, 0, WIDTH, HEIGHT);
+
+        glfwSetFramebufferSizeCallback(window, (win, width, height) -> {
+            GL11.glViewport(0, 0, width, height);
+        });
 
         glfwSwapInterval(isVsyncEnabled ? 1 : 0);
         glfwShowWindow(window);
@@ -61,6 +64,18 @@ public class DisplayManager {
 
     public static boolean isCloseRequested() {
         return glfwWindowShouldClose(window);
+    }
+
+    public static int getWidth() {
+        return WIDTH;
+    }
+
+    public static int getHeight() {
+        return HEIGHT;
+    }
+
+    public static boolean isKeyDown(int keycode) {
+        return glfwGetKey(window, keycode) == GLFW_PRESS;
     }
 
 }

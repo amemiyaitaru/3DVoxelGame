@@ -1,11 +1,16 @@
 package engineTester;
 
-import org.lwjgl.opengl.GL11;
+import entities.Camera;
+import entities.Entity;
+import models.TexturedModel;
+import org.joml.Vector3f;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
-import renderEngine.RawModel;
+import models.RawModel;
+import renderEngine.OBJLoader;
 import renderEngine.Renderer;
 import shaders.StaticShader;
+import textures.ModelTexture;
 
 public class MainGameLoop {
 
@@ -13,28 +18,24 @@ public class MainGameLoop {
 
         DisplayManager.createDisplay();
         Loader loader = new Loader();
-        Renderer renderer = new Renderer();
         StaticShader shader = new StaticShader();
+        Renderer renderer = new Renderer(shader);
 
-        float[] vertices = {
-                -0.5f, 0.5f, 0,
-                -0.5f, -0.5f, 0,
-                0.5f, -0.5f, 0,
-                0.5f, 0.5f, 0
-        };
+        RawModel model = OBJLoader.loadObjModel("Dirt Block", loader);
+        ModelTexture texture = new ModelTexture(loader.loadTexture("grass-block"));
+        TexturedModel texturedModel = new TexturedModel(model, texture);
 
-        int[] indices = {
-                0, 1, 3,
-                3, 1, 2
-        };
+        Entity entity = new Entity(texturedModel, new Vector3f(0, 0, -5), 0, 0, 0, 1);
 
-        RawModel model = loader.loadToVAO(vertices, indices);
+        Camera camera = new Camera();
 
         while(!DisplayManager.isCloseRequested()){
-
+            entity.increaseRotation(0,1,0);
+            camera.move();
             renderer.prepare();
             shader.start();
-            renderer.render(model);
+            shader.loadViewMatrix(camera);
+            renderer.render(entity, shader);
             shader.stop();
             DisplayManager.updateDisplay();
 
